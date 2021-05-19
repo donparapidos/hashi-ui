@@ -43,11 +43,10 @@ dist-clean:
 .PHONY: docker
 docker:
 	@echo "=> build and push Docker image ..."
-	docker build -f travis.Dockerfile -t donparapidos/hashi-ui:$(COMMIT) .
-	docker tag donparapidos/hashi-ui:$(COMMIT) donparapidos/hashi-ui:$(TAG)
-	docker push donparapidos/hashi-ui:$(TAG)
+	docker build -f travis.Dockerfile -t goparap/hashi-ui:latest .
+	docker push goparap/hashi-ui:latest
 
 .PHONY: docker-dev
 docker-dev:
 	@echo "=> build Docker image ..."
-	docker build -f travis.Dockerfile -t donparapidos/hashi-ui:local-dev .
+	docker build -f travis.Dockerfile -t goparap/hashi-ui:local-dev .

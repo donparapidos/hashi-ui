@@ -5,6 +5,7 @@ GIT_COMMIT := $(shell git describe --tags)
 GIT_DIRTY := $(if $(shell git status --porcelain),+CHANGES)
 GO_LDFLAGS := "-X main.GitCommit=$(GIT_COMMIT)$(GIT_DIRTY)"
 GOBUILD ?= $(shell go env GOOS)-$(shell go env GOARCH)
+GOBUILDLINUX ?= linux-amd64
 
 $(BUILD_DIR):
 	mkdir -p $@
@@ -13,6 +14,11 @@ BINARIES = $(addprefix $(BUILD_DIR)/hashi-ui-, $(GOBUILD))
 $(BINARIES): $(BUILD_DIR)/hashi-ui-%: $(BUILD_DIR) bindata_assetfs.go
 	@echo "=> building $@ ..."
 	GOOS=$(call GET_GOOS,$*) GOARCH=$(call GET_GOARCH,$*) CGO_ENABLED=0 go build -o $@ -ldflags $(GO_LDFLAGS)
+	
+LINUX = $(addprefix $(BUILD_DIR)/hashi-ui-, $(GOBUILDLINUX))
+$(LINUX): $(BUILD_DIR)/hashi-ui-%: $(BUILD_DIR) bindata_assetfs.go
+	@echo "=> building $@ ..."
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o $@ -ldflags $(GO_LDFLAGS)
 
 .PHONY: install
 install:
@@ -30,6 +36,11 @@ bindata_assetfs.go:
 build: install
 	@echo "=> building backend ..."
 	$(MAKE) -j $(BINARIES)
+
+.PHONY: build-linux
+build-linux: install
+	@echo "=> building backend ..."
+	$(MAKE) -j $(LINUX)
 
 .PHONY: rebuild
 rebuild: clean
